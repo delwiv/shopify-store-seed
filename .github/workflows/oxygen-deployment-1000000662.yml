@@ -48,8 +48,10 @@ jobs:
         uses: shopify/oxygenctl-action@v4
         with:
           oxygen_deployment_token: ${{ secrets.OXYGEN_DEPLOYMENT_TOKEN_1000000662 }}
-          path: packages/store/
-          build_command: "HYDROGEN_ASSET_BASE_URL=$OXYGEN_ASSET_BASE_URL yarn build"
+          build_command: "HYDROGEN_ASSET_BASE_URL=$OXYGEN_ASSET_BASE_URL pnpm build"
+          oxygen_client_dir: packages/store/dist/client
+          oxygen_worker_dir: packages/store/dist/worker
+          path: packages/store
 
       # Create GitHub Deployment
       - name: Create GitHub Deployment
