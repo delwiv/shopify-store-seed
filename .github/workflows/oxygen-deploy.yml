@@ -43,7 +43,7 @@ jobs:
 
       - name: Install dependencies
         id: 'install-dependencies'
-        run: pnpm --filter store i
+        run: pnpm install
 
       - name: Build and Publish to Oxygen
         id: deploy
