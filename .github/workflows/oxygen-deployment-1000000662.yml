@@ -44,7 +44,7 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm --filter store install
 
       - name: Build and Publish to Oxygen
         id: deploy
