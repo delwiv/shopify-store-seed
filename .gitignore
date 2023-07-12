@@ -1,4 +1,10 @@
 node_modules
+packages/store/node_modules
+packages/store/dist
+packages/store/build
+packages/sanity/node_modules
+packages/sanity/dist
+packages/sanity/build
 /.cache
 /build
 /dist
