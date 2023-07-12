@@ -2,6 +2,7 @@ node_modules
 packages/store/node_modules
 packages/store/dist
 packages/store/build
+packages/store/.cache
 packages/sanity/node_modules
 packages/sanity/dist
 packages/sanity/build
