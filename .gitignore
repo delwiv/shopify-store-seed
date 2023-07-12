@@ -6,6 +6,7 @@ packages/store/.cache
 packages/sanity/node_modules
 packages/sanity/dist
 packages/sanity/build
+packages/sanity/.sanity
 /.cache
 /build
 /dist

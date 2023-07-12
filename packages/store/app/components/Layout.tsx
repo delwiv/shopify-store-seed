@@ -26,6 +26,8 @@ import type {ChildEnhancedMenuItem} from '~/lib/utils';
 import {type EnhancedMenu, useIsHomePath} from '~/lib/utils';
 import {useIsHydrated} from '~/hooks/useIsHydrated';
 import {useCartFetchers} from '~/hooks/useCartFetchers';
+import {useSettings} from '~/hooks/useSettings';
+import {buildLink} from '~/lib/link';
 
 type LayoutProps = {
   children: React.ReactNode;
@@ -253,6 +255,8 @@ function DesktopHeader({
 }) {
   const params = useParams();
   const {y} = useWindowScroll();
+  const settings = useSettings();
+
   return (
     <header
       role="banner"
@@ -269,20 +273,28 @@ function DesktopHeader({
           {title}
         </Link>
         <nav className="flex gap-8">
+          <Suspense>
+            <Await resolve={settings}>
+              {({settings}) => (
+                <>
+                  {(settings.menu.links || []).map((item) => (
+                    <Link
+                      key={item._key}
+                      to={buildLink(item)}
+                      target={item.target}
+                      prefetch="intent"
+                      className={({isActive}) =>
+                        isActive ? 'pb-1 border-b -mb-px' : 'pb-1'
+                      }
+                    >
+                      {item.title}
+                    </Link>
+                  ))}
+                </>
+              )}
+            </Await>
+          </Suspense>
           {/* Top level menu items */}
-          {(menu?.items || []).map((item) => (
-            <Link
-              key={item.id}
-              to={item.to}
-              target={item.target}
-              prefetch="intent"
-              className={({isActive}) =>
-                isActive ? 'pb-1 border-b -mb-px' : 'pb-1'
-              }
-            >
-              {item.title}
-            </Link>
-          ))}
         </nav>
       </div>
       <div className="flex items-center gap-1">

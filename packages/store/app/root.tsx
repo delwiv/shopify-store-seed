@@ -28,6 +28,8 @@ import {NotFound} from './components/NotFound';
 import styles from './styles/app.css';
 import {DEFAULT_LOCALE, parseMenu, getCartId} from './lib/utils';
 import {useAnalytics} from './hooks/useAnalytics';
+import {sanityClient} from './lib/sanity';
+import {QUERY_SANITY_SETTINGS} from './queries/sanity/settings';
 
 export const links: LinksFunction = () => {
   return [
@@ -36,10 +38,10 @@ export const links: LinksFunction = () => {
       rel: 'preconnect',
       href: 'https://cdn.shopify.com',
     },
-    {
-      rel: 'preconnect',
-      href: 'https://shop.app',
-    },
+    // {
+    //   rel: 'preconnect',
+    //   href: 'https://shop.app',
+    // },
     {rel: 'icon', type: 'image/svg+xml', href: favicon},
   ];
 };
@@ -54,6 +56,7 @@ export async function loader({request, context}: LoaderArgs) {
   const seo = seoPayload.root({shop: layout.shop, url: request.url});
 
   return defer({
+    settings: sanityClient.fetch(QUERY_SANITY_SETTINGS),
     isLoggedIn: Boolean(customerAccessToken),
     layout,
     selectedLocale: context.storefront.i18n,
