@@ -1,5 +1,7 @@
+# Don't change the line below!
+#! oxygen_storefront_id: 1000000662
 
-name: Storefront 1000000642
+name: Storefront 1000000662
 on: [push]
 
 permissions:
@@ -24,7 +26,7 @@ jobs:
         name: Install pnpm
         id: pnpm-install
         with:
-          version: 7
+          version: 8
           run_install: false
 
       - name: Get pnpm store directory
@@ -42,16 +44,17 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        id: 'install-dependencies'
-        run: pnpm --filter store i
+        run: pnpm install
 
       - name: Build and Publish to Oxygen
         id: deploy
         uses: shopify/oxygenctl-action@v4
         with:
+          oxygen_deployment_token: ${{ secrets.OXYGEN_DEPLOYMENT_TOKEN_1000000662 }}
+          build_command: "HYDROGEN_ASSET_BASE_URL=$OXYGEN_ASSET_BASE_URL pnpm build"
+          # oxygen_client_dir: dist/client
+          # oxygen_worker_dir: dist/worker
           path: packages/store
-          oxygen_deployment_token: ${{ secrets.OXYGEN_DEPLOYMENT_TOKEN_1000000642 }}
-          build_command: "HYDROGEN_ASSET_BASE_URL=$OXYGEN_ASSET_BASE_URL yarn build"
 
       # Create GitHub Deployment
       - name: Create GitHub Deployment
@@ -62,3 +65,4 @@ jobs:
           environment: 'preview'
           preview_url: ${{ steps.deploy.outputs.url }}
           description: ${{ github.event.head_commit.message }}
+        
