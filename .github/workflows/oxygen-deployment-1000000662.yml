@@ -52,8 +52,8 @@ jobs:
         with:
           oxygen_deployment_token: ${{ secrets.OXYGEN_DEPLOYMENT_TOKEN_1000000662 }}
           build_command: "HYDROGEN_ASSET_BASE_URL=$OXYGEN_ASSET_BASE_URL pnpm build"
-          oxygen_client_dir: packages/store/dist/client
-          oxygen_worker_dir: packages/store/dist/worker
+          # oxygen_client_dir: dist/client
+          # oxygen_worker_dir: dist/worker
           path: packages/store
 
       # Create GitHub Deployment
