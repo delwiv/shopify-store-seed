@@ -279,7 +279,7 @@ function DesktopHeader({
                 <>
                   {(settings.menu.links || []).map((item) => (
                     <Link
-                      key={item._key}
+                      key={item.id}
                       to={buildLink(item)}
                       target={item.target}
                       prefetch="intent"

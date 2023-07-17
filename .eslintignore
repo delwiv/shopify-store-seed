@@ -1,5 +1,5 @@
-build
-node_modules
-bin
-*.d.ts
-dist
+*/**/build
+*/**/node_modules
+*/**/bin
+*/**/*.d.ts
+*/**/dist
