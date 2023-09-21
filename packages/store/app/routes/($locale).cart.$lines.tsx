@@ -1,7 +1,5 @@
 import {redirect, type LoaderArgs} from '@shopify/remix-oxygen';
 
-import {cartCreate} from './($locale).cart';
-
 /**
  * Automatically creates a new cart based on the URL and redirects straight to checkout.
  * Expected URL structure:
@@ -22,12 +20,10 @@ import {cartCreate} from './($locale).cart';
  * @preserve
  */
 export async function loader({request, context, params}: LoaderArgs) {
-  const {storefront} = context;
-
-  const session = context.session;
-
+  const {cart} = context;
   const {lines} = params;
-  const linesMap = lines?.split(',').map((line) => {
+  if (!lines) return redirect('/cart');
+  const linesMap = lines.split(',').map((line) => {
     const lineDetails = line.split(':');
     const variantId = lineDetails[0];
     const quantity = parseInt(lineDetails[1], 10);
@@ -44,31 +40,26 @@ export async function loader({request, context, params}: LoaderArgs) {
   const discount = searchParams.get('discount');
   const discountArray = discount ? [discount] : [];
 
-  const headers = new Headers();
-
-  //! create a cart
-  const {cart, errors: graphqlCartErrors} = await cartCreate({
-    input: {
-      lines: linesMap,
-      discountCodes: discountArray,
-    },
-    storefront,
+  // create a cart
+  const result = await cart.create({
+    lines: linesMap,
+    discountCodes: discountArray,
   });
 
-  if (graphqlCartErrors?.length || !cart) {
+  const cartResult = result.cart;
+
+  if (result.errors?.length || !cartResult) {
     throw new Response('Link may be expired. Try checking the URL.', {
       status: 410,
     });
   }
 
-  //! cart created - set and replace the session cart if there is one
-  session.unset('cartId');
-  session.set('cartId', cart.id);
-  headers.set('Set-Cookie', await session.commit());
+  // Update cart id in cookie
+  const headers = cart.setCartId(cartResult.id);
 
-  //! redirect to checkout
-  if (cart.checkoutUrl) {
-    return redirect(cart.checkoutUrl, {headers});
+  // redirect to checkout
+  if (cartResult.checkoutUrl) {
+    return redirect(cartResult.checkoutUrl, {headers});
   } else {
     throw new Error('No checkout URL found');
   }
