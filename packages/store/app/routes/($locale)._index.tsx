@@ -11,6 +11,8 @@ import type {
   FeaturedCollectionFragment,
   RecommendedProductsQuery,
 } from 'storefrontapi.generated';
+import {builder, sanityClient} from '~/lib/sanity';
+import {QUERY_SANITY_HOME} from '~/queries/sanity/page';
 
 export const meta: V2_MetaFunction = () => {
   return [{title: 'Hydrogen | Home'}];
@@ -22,13 +24,41 @@ export async function loader({context}: LoaderArgs) {
   const featuredCollection = collections.nodes[0];
   const recommendedProducts = storefront.query(RECOMMENDED_PRODUCTS_QUERY);
 
-  return defer({featuredCollection, recommendedProducts});
+  return defer({
+    featuredCollection,
+    recommendedProducts,
+    page: sanityClient.fetch(QUERY_SANITY_HOME),
+  });
 }
 
 export default function Homepage() {
   const data = useLoaderData<typeof loader>();
+  console.log('page', data.page);
   return (
     <div className="home">
+      <Suspense fallback={<h1>Fifty Fyfti Agency...</h1>}>
+        <Await resolve={data.page}>
+          {({home}) => (
+            <>
+              <h1>{home.hero.title}</h1>
+              <p>{home.hero.text}</p>
+              <Link to={home.hero.links[0].url} target="_blank">
+                {home.hero.links[0].title}
+              </Link>
+              <img
+                width={200}
+                height={200}
+                alt=""
+                src={builder
+                  .image(home.hero.content[0].image.asset._ref)
+                  .width(200)
+                  .height(200)
+                  .url()}
+              ></img>
+            </>
+          )}
+        </Await>
+      </Suspense>
       <FeaturedCollection collection={data.featuredCollection} />
       <RecommendedProducts products={data.recommendedProducts} />
     </div>

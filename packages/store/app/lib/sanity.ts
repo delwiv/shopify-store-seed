@@ -1,3 +1,4 @@
+import sanityBuilder from '@sanity/image-url';
 import {createClient} from '@sanity/client';
 
 const settings = {
@@ -7,4 +8,8 @@ const settings = {
   apiVersion: '2023-05-03',
 };
 
-export const sanityClient = createClient(settings);
+export const sanityClient = createClient({
+  ...settings,
+});
+
+export const builder = sanityBuilder(sanityClient);
