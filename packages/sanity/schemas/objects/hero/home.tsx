@@ -12,6 +12,12 @@ export default defineField({
       type: 'text',
       rows: 3,
     }),
+    defineField({
+      name: 'text',
+      title: 'Text',
+      type: 'text',
+      rows: 3,
+    }),
     // Link
     defineField({
       name: 'links',

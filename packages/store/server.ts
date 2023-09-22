@@ -1,13 +1,23 @@
 // Virtual entry point for the app
 import * as remixBuild from '@remix-run/dev/server-build';
 import {
+  cartGetIdDefault,
+  cartSetIdDefault,
+  createCartHandler,
+  createStorefrontClient,
+  storefrontRedirect,
+} from '@shopify/hydrogen';
+import {
   createRequestHandler,
   getStorefrontHeaders,
+  createCookieSessionStorage,
+  type SessionStorage,
+  type Session,
 } from '@shopify/remix-oxygen';
-import {createStorefrontClient, storefrontRedirect} from '@shopify/hydrogen';
-
-import {HydrogenSession} from '~/lib/session.server';
-import {getLocaleFromRequest} from '~/lib/utils';
+import type {
+  LanguageCode,
+  CountryCode,
+} from '@shopify/hydrogen/storefront-api-types';
 
 /**
  * Export a fetch handler in module format.
@@ -26,7 +36,7 @@ export default {
         throw new Error('SESSION_SECRET environment variable is not set');
       }
 
-      const waitUntil = (p: Promise<any>) => executionContext.waitUntil(p);
+      const waitUntil = executionContext.waitUntil.bind(executionContext);
       const [cache, session] = await Promise.all([
         caches.open('hydrogen'),
         HydrogenSession.init(request, [env.SESSION_SECRET]),
@@ -46,6 +56,17 @@ export default {
         storefrontHeaders: getStorefrontHeaders(request),
       });
 
+      /*
+       * Create a cart handler that will be used to
+       * create and update the cart in the session.
+       */
+      const cart = createCartHandler({
+        storefront,
+        getCartId: cartGetIdDefault(request.headers),
+        setCartId: cartSetIdDefault(),
+        cartQueryFragment: CART_QUERY_FRAGMENT,
+      });
+
       /**
        * Create a Remix request handler and pass
        * Hydrogen's Storefront client to the loader context.
@@ -53,12 +74,7 @@ export default {
       const handleRequest = createRequestHandler({
         build: remixBuild,
         mode: process.env.NODE_ENV,
-        getLoadContext: () => ({
-          session,
-          waitUntil,
-          storefront,
-          env,
-        }),
+        getLoadContext: () => ({session, storefront, cart, env, waitUntil}),
       });
 
       const response = await handleRequest(request);
@@ -80,3 +96,190 @@ export default {
     }
   },
 };
+
+/**
+ * This is a custom session implementation for your Hydrogen shop.
+ * Feel free to customize it to your needs, add helper methods, or
+ * swap out the cookie-based implementation with something else!
+ */
+export class HydrogenSession {
+  #sessionStorage;
+  #session;
+
+  constructor(sessionStorage: SessionStorage, session: Session) {
+    this.#sessionStorage = sessionStorage;
+    this.#session = session;
+  }
+
+  static async init(request: Request, secrets: string[]) {
+    const storage = createCookieSessionStorage({
+      cookie: {
+        name: 'session',
+        httpOnly: true,
+        path: '/',
+        sameSite: 'lax',
+        secrets,
+      },
+    });
+
+    const session = await storage.getSession(request.headers.get('Cookie'));
+
+    return new this(storage, session);
+  }
+
+  get has() {
+    return this.#session.has;
+  }
+
+  get get() {
+    return this.#session.get;
+  }
+
+  get flash() {
+    return this.#session.flash;
+  }
+
+  get unset() {
+    return this.#session.unset;
+  }
+
+  get set() {
+    return this.#session.set;
+  }
+
+  destroy() {
+    return this.#sessionStorage.destroySession(this.#session);
+  }
+
+  commit() {
+    return this.#sessionStorage.commitSession(this.#session);
+  }
+}
+
+// NOTE: https://shopify.dev/docs/api/storefront/latest/queries/cart
+const CART_QUERY_FRAGMENT = `#graphql
+  fragment Money on MoneyV2 {
+    currencyCode
+    amount
+  }
+  fragment CartLine on CartLine {
+    id
+    quantity
+    attributes {
+      key
+      value
+    }
+    cost {
+      totalAmount {
+        ...Money
+      }
+      amountPerQuantity {
+        ...Money
+      }
+      compareAtAmountPerQuantity {
+        ...Money
+      }
+    }
+    merchandise {
+      ... on ProductVariant {
+        id
+        availableForSale
+        compareAtPrice {
+          ...Money
+        }
+        price {
+          ...Money
+        }
+        requiresShipping
+        title
+        image {
+          id
+          url
+          altText
+          width
+          height
+
+        }
+        product {
+          handle
+          title
+          id
+        }
+        selectedOptions {
+          name
+          value
+        }
+      }
+    }
+  }
+  fragment CartApiQuery on Cart {
+    id
+    checkoutUrl
+    totalQuantity
+    buyerIdentity {
+      countryCode
+      customer {
+        id
+        email
+        firstName
+        lastName
+        displayName
+      }
+      email
+      phone
+    }
+    lines(first: $numCartLines) {
+      nodes {
+        ...CartLine
+      }
+    }
+    cost {
+      subtotalAmount {
+        ...Money
+      }
+      totalAmount {
+        ...Money
+      }
+      totalDutyAmount {
+        ...Money
+      }
+      totalTaxAmount {
+        ...Money
+      }
+    }
+    note
+    attributes {
+      key
+      value
+    }
+    discountCodes {
+      code
+      applicable
+    }
+  }
+` as const;
+
+export type I18nLocale = {
+  language: LanguageCode;
+  country: CountryCode;
+  pathPrefix: string;
+};
+
+function getLocaleFromRequest(request: Request): I18nLocale {
+  const url = new URL(request.url);
+  const firstPathPart = url.pathname.split('/')[1]?.toUpperCase() ?? '';
+
+  let pathPrefix = '';
+  let language: LanguageCode = 'EN';
+  let country: CountryCode = 'US';
+
+  if (/^[A-Z]{2}-[A-Z]{2}$/i.test(firstPathPart)) {
+    pathPrefix = '/' + firstPathPart;
+    [language, country] = firstPathPart.split('-') as [
+      LanguageCode,
+      CountryCode,
+    ];
+  }
+
+  return {language, country, pathPrefix};
+}
