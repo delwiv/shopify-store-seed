@@ -1,8 +1,8 @@
 export const QUERY_SANITY_SETTINGS = `
 {
-"settings": *[
+"data": *[
   _type == 'settings'
-  
+
 ][0]
 {
   ...,
@@ -11,7 +11,6 @@ export const QUERY_SANITY_SETTINGS = `
     links[] {
       ...,
       reference->
-      
     }
   }
 }

@@ -82,19 +82,20 @@ export async function loader({context}: LoaderArgs) {
   });
 
   // await the header query (above the fold)
-  const headerPromise = storefront.query(HEADER_QUERY, {
-    cache: storefront.CacheLong(),
-    variables: {
-      headerMenuHandle: 'main-menu', // Adjust to your header menu handle
-    },
-  });
+  //const headerPromise = storefront.query(HEADER_QUERY, {
+  //  cache: storefront.CacheLong(),
+  //  variables: {
+  //    headerMenuHandle: 'main-menu', // Adjust to your header menu handle
+  //  },
+  //});
+
+  const {data: settings} = await sanityClient.fetch(QUERY_SANITY_SETTINGS);
 
   return defer(
     {
-      settings: sanityClient.fetch(QUERY_SANITY_SETTINGS),
+      settings,
       cart: cartPromise,
       footer: footerPromise,
-      header: await headerPromise,
       isLoggedIn,
       publicStoreDomain,
     },

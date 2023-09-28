@@ -13,3 +13,18 @@ export const sanityClient = createClient({
 });
 
 export const builder = sanityBuilder(sanityClient);
+//
+// for link references to pages, collections or products
+export const buildLink = (data) => {
+  try {
+    if (data.reference._type.includes('page')) {
+      return `/pages/${data.reference.slug.current}`;
+    }
+    return '/'.concat(
+      [`${data.reference._type}s`, data.reference.store.slug.current].join('/'),
+    );
+  } catch (err) {
+    console.warn('could not build link for this input', data, err);
+    return '';
+  }
+};

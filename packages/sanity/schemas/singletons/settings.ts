@@ -33,6 +33,12 @@ export default defineType({
   fields: [
     // Menu
     defineField({
+      name: 'shopName',
+      title: 'Shop name',
+      type: 'string',
+      group: 'navigation',
+    }),
+    defineField({
       name: 'menu',
       title: 'Menu',
       type: 'menuSettings',

@@ -18,7 +18,7 @@ export type LayoutProps = {
   cart: Promise<CartApiQueryFragment | null>;
   children?: React.ReactNode;
   footer: Promise<FooterQuery>;
-  header: HeaderQuery;
+  settings: {shopName: string; menu: any};
   isLoggedIn: boolean;
 };
 
@@ -26,15 +26,14 @@ export function Layout({
   cart,
   children = null,
   footer,
-  header,
   isLoggedIn,
+  settings,
 }: LayoutProps) {
   return (
     <>
       <CartAside cart={cart} />
       <SearchAside />
-      <MobileMenuAside menu={header.menu} />
-      <Header header={header} cart={cart} isLoggedIn={isLoggedIn} />
+      <Header settings={settings} cart={cart} isLoggedIn={isLoggedIn} />
       <main>{children}</main>
       <Suspense>
         <Await resolve={footer}>

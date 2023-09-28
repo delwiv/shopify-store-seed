@@ -1,19 +1,19 @@
 import {Await, NavLink, useMatches} from '@remix-run/react';
 import {Suspense} from 'react';
 import type {LayoutProps} from './Layout';
+import {buildLink} from '~/lib/sanity';
 
-type HeaderProps = Pick<LayoutProps, 'header' | 'cart' | 'isLoggedIn'>;
+type HeaderProps = Pick<LayoutProps, 'cart' | 'isLoggedIn' | 'settings'>;
 
 type Viewport = 'desktop' | 'mobile';
 
-export function Header({header, isLoggedIn, cart}: HeaderProps) {
-  const {shop, menu} = header;
+export function Header({isLoggedIn, cart, settings}: HeaderProps) {
   return (
     <header className="header">
       <NavLink prefetch="intent" to="/" style={activeLinkStyle} end>
-        <strong>{shop.name}</strong>
+        <strong>{settings.shopName}</strong>
       </NavLink>
-      <HeaderMenu menu={menu} viewport="desktop" />
+      <HeaderMenu menu={settings.menu} viewport="desktop" />
       <HeaderCtas isLoggedIn={isLoggedIn} cart={cart} />
     </header>
   );
@@ -23,7 +23,7 @@ export function HeaderMenu({
   menu,
   viewport,
 }: {
-  menu: HeaderProps['header']['menu'];
+  menu: {links: any[]};
   viewport: Viewport;
 }) {
   const [root] = useMatches();
@@ -50,24 +50,16 @@ export function HeaderMenu({
           Home
         </NavLink>
       )}
-      {(menu || FALLBACK_HEADER_MENU).items.map((item) => {
-        if (!item.url) return null;
-
-        // if the url is internal, we strip the domain
-        const url =
-          item.url.includes('myshopify.com') ||
-          item.url.includes(publicStoreDomain)
-            ? new URL(item.url).pathname
-            : item.url;
+      {menu.links.map((item) => {
         return (
           <NavLink
             className="header-menu-item"
             end
-            key={item.id}
+            key={item._key}
             onClick={closeAside}
             prefetch="intent"
             style={activeLinkStyle}
-            to={url}
+            to={buildLink(item)}
           >
             {item.title}
           </NavLink>

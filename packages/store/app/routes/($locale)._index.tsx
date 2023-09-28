@@ -33,7 +33,6 @@ export async function loader({context}: LoaderArgs) {
 
 export default function Homepage() {
   const data = useLoaderData<typeof loader>();
-  console.log('page', data.page);
   return (
     <div className="home">
       <Suspense fallback={<h1>Fifty Fyfti Agency...</h1>}>
@@ -49,7 +48,7 @@ export default function Homepage() {
                   height={200}
                   alt=""
                   src={builder
-                    .image(home.hero.content[0])
+                    .image(home.hero.content[0].image)
                     .width(200)
                     .height(200)
                     .url()}
