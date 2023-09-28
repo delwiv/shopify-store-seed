@@ -44,17 +44,17 @@ export default function Homepage() {
               <p>{home.hero.text}</p>
               <Link to={home.hero.links[0].url} target="_blank">
                 {home.hero.links[0].title}
+                <img
+                  width={200}
+                  height={200}
+                  alt=""
+                  src={builder
+                    .image(home.hero.content[0])
+                    .width(200)
+                    .height(200)
+                    .url()}
+                ></img>
               </Link>
-              <img
-                width={200}
-                height={200}
-                alt=""
-                src={builder
-                  .image(home.hero.content[0].image.asset._ref)
-                  .width(200)
-                  .height(200)
-                  .url()}
-              ></img>
             </>
           )}
         </Await>
