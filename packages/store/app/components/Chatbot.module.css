@@ -1,0 +1,12 @@
+.chatbot {
+  position: fixed;
+  bottom: 15px;
+  right: 15px;
+  iframe {
+    border: 1px solid gray;
+    width: 300px;
+    height: 500px;
+    background-color: white;
+    padding: 5px;
+  }
+}

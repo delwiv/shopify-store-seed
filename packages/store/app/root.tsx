@@ -63,6 +63,7 @@ export async function loader({context}: LoaderArgs) {
   const {storefront, session, cart} = context;
   const customerAccessToken = await session.get('customerAccessToken');
   const publicStoreDomain = context.env.PUBLIC_STORE_DOMAIN;
+  const chatbotUrl = context.env.CHATBOT_URL
 
   // validate the customer access token is valid
   const {isLoggedIn, headers} = await validateCustomerAccessToken(
@@ -97,6 +98,7 @@ export async function loader({context}: LoaderArgs) {
       cart: cartPromise,
       footer: footerPromise,
       isLoggedIn,
+      chatbotUrl,
       publicStoreDomain,
     },
     {headers},

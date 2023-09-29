@@ -13,6 +13,8 @@ import {
   PredictiveSearchForm,
   PredictiveSearchResults,
 } from '~/components/Search';
+import { Chatbot } from './Chatbot';
+import styles from './Layout.module.css'
 
 export type LayoutProps = {
   cart: Promise<CartApiQueryFragment | null>;
@@ -30,17 +32,18 @@ export function Layout({
   settings,
 }: LayoutProps) {
   return (
-    <>
+    <div className={styles.layout}>
       <CartAside cart={cart} />
       <SearchAside />
       <Header settings={settings} cart={cart} isLoggedIn={isLoggedIn} />
       <main>{children}</main>
+      <Chatbot></Chatbot>
       <Suspense>
         <Await resolve={footer}>
           {(footer) => <Footer menu={footer.menu} />}
         </Await>
       </Suspense>
-    </>
+    </div>
   );
 }
 

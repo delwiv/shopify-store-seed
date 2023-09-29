@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "pnpm --stream --filter store --filter sanity dev",
+    "dev": "pnpm --stream --filter store --filter sanity --filter chatbot dev",
     "deploy-sanity": "pnpm --filter sanity deploy",
     "build": "pnpm --filter store build",
     "test": "echo \"Error: no test specified\" && exit 1"

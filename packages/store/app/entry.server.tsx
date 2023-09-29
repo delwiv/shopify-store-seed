@@ -11,7 +11,10 @@ export default async function handleRequest(
   remixContext: EntryContext,
 ) {
   const {nonce, header, NonceProvider} = createContentSecurityPolicy({
-    imgSrc: ['self', 'data:', 'https:', 'http://localhost', 'inline'],
+    imgSrc: ["'self'", 'data:', 'https:', 'http://localhost', 'inline'],
+    scriptSrc: ["'self'", 'data:', 'https:', 'http://localhost:', 'inline'],
+    defaultSrc: ["'self'", 'data:', 'https:', 'http://localhost:', 'inline'],
+    frameSrc: ["'self'", 'data:', 'https:', 'http://localhost:3001', 'inline'],
   });
 
   const body = await renderToReadableStream(
