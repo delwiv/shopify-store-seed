@@ -8,7 +8,6 @@ export const Chatbot = () => {
 
   const toggleDisplay = () => setDisplay(!display);
 
-  console.log({chatbotUrl});
   return (
     !!chatbotUrl && (
       <div className={styles.chatbot}>

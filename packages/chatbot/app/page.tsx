@@ -1,22 +1,23 @@
-'use client';
+"use client";
 
-import { useChat } from 'ai/react';
-import { useEffect, useRef } from 'react';
+import { useChat } from "ai/react";
+import { useEffect, useRef } from "react";
 
 export default function Chat() {
-  const { messages, input, handleInputChange, handleSubmit, data } = useChat();
-  const inputRef = useRef(null)
+  const { messages, input, handleInputChange, handleSubmit, data } = useChat({
+    api: "http://localhost:3002/chat",
+  });
+  const inputRef = useRef(null);
 
   useEffect(() => {
-    inputRef.current.focus()
-
-  }, [])
+    inputRef.current.focus();
+  }, []);
   return (
     <div className="flex flex-col w-full max-w-md py-24 mx-auto stretch">
       {messages.length > 0
-        ? messages.map(m => (
+        ? messages.map((m) => (
             <div key={m.id} className="whitespace-pre-wrap">
-              {m.role === 'user' ? 'User: ' : 'AI: '}
+              {m.role === "user" ? "User: " : "AI: "}
               {m.content}
             </div>
           ))
@@ -26,7 +27,7 @@ export default function Chat() {
         <input
           ref={inputRef}
           className="fixed bottom-0 w-full max-w-md p-2 mb-8 border border-gray-300 rounded shadow-xl"
-          id='textInput'
+          id="textInput"
           value={input}
           placeholder="Say something..."
           onChange={handleInputChange}
